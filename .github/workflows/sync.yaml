@@ -12,7 +12,14 @@ jobs:
     if: ${{ github.event.repository.fork }}
 
     steps:
-      - name: Sync upstream changes
-        run: gh repo sync ${{ github.repository }} --source dreamhunter2333/cloudflare_temp_email --branch main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN }}
+          fetch-depth: 0
+      - name: Merge upstream changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch https://github.com/dreamhunter2333/cloudflare_temp_email.git main
+          git merge --no-edit FETCH_HEAD
+          git push origin HEAD:main
